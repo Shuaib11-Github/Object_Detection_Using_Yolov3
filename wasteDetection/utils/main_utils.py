@@ -38,15 +38,36 @@ def write_yaml_file(file_path: str, content: object, replace: bool = False) -> N
 
 
 def decodeImage(imgstring, fileName):
-    imgdata = base64.b64decode(imgstring)
-    with open("./data/" + fileName, 'wb') as f:
-        f.write(imgdata)
-        f.close()
+    try:
+        # Decode Base64 string
+        imgdata = base64.b64decode(imgstring)
+
+        # Save the decoded image to the `data` directory
+        file_path = os.path.join("./data/", fileName)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, 'wb') as f:
+            f.write(imgdata)
+        logging.info(f"Image successfully saved at {file_path}")
+    except Exception as e:
+        logging.error(f"Error decoding image: {e}")
+        raise AppException(e, sys)
+
 
 
 def encodeImageIntoBase64(croppedImagePath):
-    with open(croppedImagePath, "rb") as f:
-        return base64.b64encode(f.read())
+    try:
+        if not os.path.exists(croppedImagePath):
+            raise FileNotFoundError(f"File not found: {croppedImagePath}")
+
+        with open(croppedImagePath, "rb") as f:
+            encoded_image = base64.b64encode(f.read())
+            logging.info(f"Image successfully encoded from {croppedImagePath}")
+            return encoded_image
+    except Exception as e:
+        logging.error(f"Error encoding image into Base64: {e}")
+        raise AppException(e, sys)
+
 
     
     
